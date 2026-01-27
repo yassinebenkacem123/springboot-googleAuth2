@@ -7,10 +7,8 @@ import javax.crypto.SecretKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.WebUtils;
 
@@ -27,8 +25,6 @@ import jakarta.servlet.http.HttpServletRequest;
 @Service
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
-    @Autowired
-    private UserDetailsImpl userDetails;
 
     @Value("${jwt.expiration-time}")
     private int jwtExpirationTime;
@@ -41,8 +37,7 @@ public class JwtUtils {
 
     
     // generate jwt from user name : 
-    public String generateJwtFromUserName(UserDetails userDetails){
-        String username = userDetails.getUsername();
+    public String generateJwtFromUserName(String username){
         return Jwts.builder()
             .subject(username)
             .issuedAt(new Date())
@@ -53,14 +48,14 @@ public class JwtUtils {
     
     
     // stock jwt on the cookie :
-    public ResponseCookie stockingJwtOnCookie(){
-        String token = generateJwtFromUserName(userDetails);
+    public ResponseCookie stockingJwtOnCookie(UserDetailsImpl userDetails){
+        String token = generateJwtFromUserName(userDetails.getUsername());
 
         ResponseCookie cookie = ResponseCookie
             .from(jwtCookieKey, token)
-            .path("/api/v2")
-            .httpOnly(false)
-            .maxAge(64*64*10)
+            .path("/api/v2/")
+            .httpOnly(true)
+            .maxAge(24*60*60)
             .build();
         return cookie;   
     }

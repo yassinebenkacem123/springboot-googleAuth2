@@ -53,8 +53,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         }  
 
        }catch(Exception e){
-         logger.error("Error occur while setting the authentication object {} ",e.getMessage());
-       }filterChain.doFilter(request, response);
+            logger.error("Error occur while setting the authentication object {} ",e.getMessage());
+        }
+        filterChain.doFilter(request, response);
     }
 
     

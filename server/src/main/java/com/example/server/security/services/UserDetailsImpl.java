@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.example.server.models.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Component
+@Service
 public class UserDetailsImpl implements UserDetails {
 
     private Long id;
