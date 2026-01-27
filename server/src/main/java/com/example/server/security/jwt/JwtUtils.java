@@ -11,9 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.util.WebUtils;
 
+import com.example.server.security.services.UserDetailsImpl;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -23,16 +24,16 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
-@Component
+@Service
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
     @Autowired
-    private UserDetails userDetails;
+    private UserDetailsImpl userDetails;
 
     @Value("${jwt.expiration-time}")
     private int jwtExpirationTime;
  
-    @Value("${jwt.secret-key")
+    @Value("${jwt.secret-key}")
     private String jwtSecretKey;
 
     @Value("${jwt.cookie.key}")
@@ -40,8 +41,8 @@ public class JwtUtils {
 
     
     // generate jwt from user name : 
-    public String generateJwtFromUserName(UserDetails user){
-        String username = user.getUsername();
+    public String generateJwtFromUserName(UserDetails userDetails){
+        String username = userDetails.getUsername();
         return Jwts.builder()
             .subject(username)
             .issuedAt(new Date())
@@ -53,7 +54,7 @@ public class JwtUtils {
     
     // stock jwt on the cookie :
     public ResponseCookie stockingJwtOnCookie(){
-        String token = this.generateJwtFromUserName(userDetails);
+        String token = generateJwtFromUserName(userDetails);
 
         ResponseCookie cookie = ResponseCookie
             .from(jwtCookieKey, token)

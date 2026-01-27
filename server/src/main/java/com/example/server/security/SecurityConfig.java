@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -17,13 +16,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.example.server.security.jwt.AuthEntryPointJwt;
 import com.example.server.security.jwt.AuthTokenFilter;
+import com.example.server.security.services.UserDetailsServiceImpl;
 
 
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
     @Autowired
-    AuthEntryPointJwt authEntryPointJwt;
+    private AuthEntryPointJwt authEntryPointJwt;
     
     @Bean
     AuthTokenFilter authTokenFilter(){
@@ -31,7 +31,7 @@ public class SecurityConfig {
     };
 
     @Autowired
-    UserDetailsService userDetailsService;
+    UserDetailsServiceImpl userDetailsService;
     
     @Bean 
     public DaoAuthenticationProvider authenticationProvider(){
