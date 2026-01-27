@@ -1,6 +1,8 @@
 package com.example.server.services;
 
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,12 +20,15 @@ import com.example.server.payload.APIResponse;
 import com.example.server.payload.LoginRequest;
 import com.example.server.payload.LoginResponse;
 import com.example.server.payload.RegisterRequest;
+import com.example.server.repositories.PasswordResetTokenRepo;
 import com.example.server.repositories.UserRepo;
 import com.example.server.security.jwt.JwtUtils;
 import com.example.server.security.services.UserDetailsImpl;
 
 
 import com.example.server.exceptions.APIException;
+import com.example.server.exceptions.ResourceNotFoundException;
+import com.example.server.models.PasswordResetToken;
 import com.example.server.models.User;
 @Service
 public class AuthServiceImplt  implements AuthService{
@@ -38,6 +43,9 @@ public class AuthServiceImplt  implements AuthService{
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private PasswordResetTokenRepo passwordResetTokenRepo;
 
     @Override
     public ResponseEntity<?> registerNewUser(RegisterRequest registerRequest) {
@@ -93,6 +101,27 @@ public class AuthServiceImplt  implements AuthService{
             .ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
             .body(loginResponse);
+    }
+
+    @Override
+    public ResponseEntity<?> forgetPasswordService(String email) {
+        User user = userRepo.findByEmail(email);
+        if(user == null){
+            throw new ResourceNotFoundException("User with email "+email+" not found");
+        }
+        
+        // delete the old tokens 
+        passwordResetTokenRepo.deleteByUser(user);
+        String token = jwtUtils.generateJwtFromUserName(user.getUsername());
+
+        PasswordResetToken passwordResetToken = new PasswordResetToken();
+        passwordResetToken.setToken(token);
+        passwordResetToken.setUser(user);
+        passwordResetToken.setExpiryDate(LocalDateTime.now().plusMinutes(15));
+
+        passwordResetTokenRepo.save(passwordResetToken);
+        String resetLink = "http://localhost:8080/api/v2/auth/reset-password?token=" + token;
+        return null;
     }
     
 }
