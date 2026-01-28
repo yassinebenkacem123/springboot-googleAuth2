@@ -25,6 +25,7 @@ import com.example.server.repositories.UserRepo;
 import com.example.server.security.jwt.JwtUtils;
 import com.example.server.security.services.UserDetailsImpl;
 
+import jakarta.transaction.Transactional;
 
 import com.example.server.exceptions.APIException;
 import com.example.server.exceptions.ResourceNotFoundException;
@@ -46,6 +47,9 @@ public class AuthServiceImplt  implements AuthService{
 
     @Autowired
     private PasswordResetTokenRepo passwordResetTokenRepo;
+
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public ResponseEntity<?> registerNewUser(RegisterRequest registerRequest) {
@@ -103,25 +107,51 @@ public class AuthServiceImplt  implements AuthService{
             .body(loginResponse);
     }
 
+
+    @Transactional
     @Override
     public ResponseEntity<?> forgetPasswordService(String email) {
+        // 1. Find the user by email
         User user = userRepo.findByEmail(email);
-        if(user == null){
-            throw new ResourceNotFoundException("User with email "+email+" not found");
+        if (user == null) {
+            throw new ResourceNotFoundException("User with email " + email + " not found");
         }
-        
-        // delete the old tokens 
-        passwordResetTokenRepo.deleteByUser(user);
+
+        // 1. Check if a password reset token already exists for this user
+        PasswordResetToken passwordResetToken = passwordResetTokenRepo.findByUser(user);
+
+        if(passwordResetToken == null){
+            passwordResetToken = new PasswordResetToken();
+        }
+        // 2. Generate a new token
         String token = jwtUtils.generateJwtFromUserName(user.getUsername());
 
-        PasswordResetToken passwordResetToken = new PasswordResetToken();
+        // 3. Set/update token and expiry date
         passwordResetToken.setToken(token);
         passwordResetToken.setUser(user);
         passwordResetToken.setExpiryDate(LocalDateTime.now().plusMinutes(15));
 
+        // 4. Save or update
         passwordResetTokenRepo.save(passwordResetToken);
+
+        // 5. Send the email
         String resetLink = "http://localhost:8080/api/v2/auth/reset-password?token=" + token;
-        return null;
+        emailService.send(
+            user.getEmail(),
+            "Reset Your Password",
+            "Hello " + user.getUsername() + ",\n\n"
+            + "We received a request to reset your password. "
+            + "Click the link below to reset it (valid for 15 minutes):\n"
+            + resetLink + "\n\n"
+            + "If you didn’t request a password reset, please ignore this email."
+        );
+
+        // 6. Return response
+        APIResponse apiResponse = new APIResponse();
+        apiResponse.setMessage("Password reset link sent successfully.");
+        apiResponse.setStatus(true);
+
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
-    
+
 }

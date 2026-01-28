@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import com.example.server.payload.LoginRequest;
 import com.example.server.payload.RegisterRequest;
 
+import jakarta.transaction.Transactional;
+
 
 public interface AuthService {
 
@@ -12,6 +14,7 @@ public interface AuthService {
 
     ResponseEntity<?> loginService(LoginRequest loginRequest);
 
+    @Transactional
     ResponseEntity<?> forgetPasswordService(String email);
     
 }

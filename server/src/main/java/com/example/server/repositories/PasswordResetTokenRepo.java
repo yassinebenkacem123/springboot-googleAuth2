@@ -10,5 +10,7 @@ import com.example.server.models.User;
 public interface PasswordResetTokenRepo extends JpaRepository<PasswordResetToken, Long> {
 
     void deleteByUser(User user);
+
+    PasswordResetToken findByUser(User user);
     
 }

@@ -46,6 +46,7 @@ public class User {
     private String password;
     
     @OneToOne(mappedBy = "user")
+    @JsonIgnore
     private PasswordResetToken passwordResetToken;
 
 }

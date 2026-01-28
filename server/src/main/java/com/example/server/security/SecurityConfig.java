@@ -61,6 +61,7 @@ public class SecurityConfig {
         request
         .requestMatchers("/api/v2/test").permitAll()
         .requestMatchers("/api/v2/auth/**").permitAll()
+        .requestMatchers("/error").permitAll()
         .anyRequest().authenticated()
 
     ).exceptionHandling(execption-> execption.authenticationEntryPoint(authEntryPointJwt));
