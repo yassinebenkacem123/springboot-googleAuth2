@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,16 +19,20 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-    //testing
+
+
+
+    // testing
     @GetMapping("/test")
-    public ResponseEntity<Map<String, String>> test(){
-        Map<String,String> message = new HashMap<>();
-        message.put("message","Server is running");
-        return new ResponseEntity<>(message,HttpStatus.OK);
+    public ResponseEntity<Map<String, String>> test() {
+        Map<String, String> message = new HashMap<>();
+
+        message.put("message", "Server is running with the beaty name ");
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
-    
+
     @GetMapping("/users")
-    public ResponseEntity<?> getAllUsers(){
+    public ResponseEntity<?> getAllUsers() {
         return userService.getUsers();
     }
 }

@@ -73,7 +73,12 @@
 			<version>4.0.2</version>
 			<scope>compile</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>me.paulschwarz</groupId>
+			<artifactId>springboot4-dotenv</artifactId>
+			<version>5.1.0</version>
+			<optional>true</optional>
+		</dependency>
 
 		<!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-mail -->
 		<dependency>
